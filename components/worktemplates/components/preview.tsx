@@ -1,17 +1,17 @@
 // Copyright (c) 2015-present Mattermost, Inc. All Rights Reserved.
 // See LICENSE.txt for license information.
 
-import React, {useMemo, useState} from 'react';
+import React, {useEffect, useMemo, useRef, useState} from 'react';
 import {useIntl} from 'react-intl';
 import styled from 'styled-components';
-
 import {AccordionItemType} from 'components/common/accordion/accordion';
+import {CSSTransition} from 'react-transition-group'; // ES6
 
 import {getTemplateDefaultIllustration} from '../utils';
 
 import {Board, Channel, Integration, Playbook, WorkTemplate} from '@mattermost/types/worktemplates';
 
-import ModalBodyWithIllustration from './modal_body_with_illustration';
+import ModalBody from './modal_body';
 import Accordion from './preview/accordion';
 import Chip from './preview/chip';
 import PreviewSection from './preview/section';
@@ -23,8 +23,13 @@ export interface PreviewProps {
 
 const Preview = ({template, ...props}: PreviewProps) => {
     const {formatMessage} = useIntl();
-
+    const nodeRef = useRef(null);
+    const [illustrationMount, setIllustrationMount] = useState(true);
     const [currentIllustration, setCurrentIllustration] = useState<[string, string]>(getTemplateDefaultIllustration(template));
+
+    useEffect(() => {
+        setIllustrationMount(true);
+    }, [currentIllustration[1]]);
 
     const [channels, boards, playbooks, integrations] = useMemo(() => {
         const channels: Channel[] = [];
@@ -107,6 +112,8 @@ const Preview = ({template, ...props}: PreviewProps) => {
     // When opening an accordion section, change the illustration to whatever has been open
     const handleItemOpened = (index: number) => {
         const item = accordionItemsData[index];
+
+        setIllustrationMount(false);
         switch (item.id) {
         case 'channels':
             setCurrentIllustration(['channels', channels[0].illustration]);
@@ -124,14 +131,32 @@ const Preview = ({template, ...props}: PreviewProps) => {
 
     return (
         <div className={props.className}>
-            <ModalBodyWithIllustration illustration={currentIllustration || ''}>
+            <ModalBody>
                 <strong>{formatMessage({id: 'worktemplates.preview.included_in_template_title', defaultMessage: 'Included in template'})}</strong>
                 <Accordion
                     accordionItemsData={accordionItemsData}
                     openFirstElement={true}
                     onItemOpened={handleItemOpened}
                 />
-            </ModalBodyWithIllustration>
+            </ModalBody>
+            <CSSTransition
+                nodeRef={nodeRef}
+                in={illustrationMount}
+                timeout={50}
+                classNames='illustration'
+                onExit={() => {
+                    console.log('onexit');
+                }}
+                onEnter={() => {
+                    console.log('onentering');
+                }}
+            >
+                <img
+                    ref={nodeRef}
+                    src={currentIllustration[1]}
+                />
+            </CSSTransition>
+
         </div>
     );
 };
@@ -148,6 +173,21 @@ const StyledPreview = styled(Preview)`
         color: var(--center-channel-text);
         margin-bottom: 8px;
     }
+
+    img {
+        box-shadow: var(--elevation-2);
+        border-radius: 8px;
+    }
+
+    .illustration-enter {
+      opacity: 0.25;
+    }
+
+    .illustration-enter-active {
+      opacity: 1;
+      transition: opacity 100ms ease-in-out;
+    }
+
 `;
 
 export default StyledPreview;
