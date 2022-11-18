@@ -33,7 +33,6 @@ const AccordionCard = ({
         if (onButtonClick) {
             onButtonClick();
         }
-
         if (onHeaderClick) {
             onHeaderClick(itemRef);
         }

@@ -8,6 +8,7 @@ import {useDispatch, useSelector} from 'react-redux';
 import styled from 'styled-components';
 
 import {injectDevData} from 'mattermost-redux/actions/worktemplates';
+
 import {Category, WorkTemplate} from '@mattermost/types/worktemplates';
 import {GlobalState} from '@mattermost/types/store';
 
