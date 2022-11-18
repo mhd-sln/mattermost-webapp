@@ -41,6 +41,10 @@ export interface Playbook {
 }
 export interface Integration {
     id: string;
+    name?: string;
+    description?: string;
+    icon?: string;
+    installed?: boolean;
 }
 
 interface Content {
@@ -56,7 +60,7 @@ export interface MessageWithIllustration {
     message: string;
     illustration?: string;
 }
-type MessageWithMandatoryIllustration = Partial<MessageWithIllustration> & Required<Pick<MessageWithIllustration, 'illustration'>>;
+type MessageWithMandatoryIllustration = Required<MessageWithIllustration> & Required<Pick<MessageWithIllustration, 'illustration'>>;
 
 interface Description {
     channel: MessageWithIllustration;

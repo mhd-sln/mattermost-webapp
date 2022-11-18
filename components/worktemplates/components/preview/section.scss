@@ -1,0 +1,77 @@
+@import 'utils/variables';
+
+.included-title {
+    text-transform: uppercase;
+    color: rgba(var(--center-channel-color-rgb), 0.56);
+    font-weight: 600;
+}
+.preview-integrations {
+    &-plugins {
+        display: flex;
+        gap: 8px;
+        margin-top: 8px;
+        flex-wrap: wrap;
+
+        &-item {
+            display: flex;
+            width: 128px;
+            height: 48px;
+            border: 1px solid rgba(var(--center-channel-text-rgb), 0.24);;
+            border-radius: 4px;
+            flex-basis: 45%;
+
+            &__uninstalled {
+                opacity: 65%;
+            }
+            &__icon {
+                display: flex;
+                height: 24px;
+                width: 24px;
+                align-items: center;
+                margin: 12px 10px;
+                &_blue {
+                    color: var(--denim-button-bg);
+                }
+            }
+
+            &__name {
+                font-family: 'Open Sans';
+                font-style: normal;
+                font-weight: 600;
+                font-size: 11px;
+                line-height: 22px;
+                letter-spacing: 0.02em;
+                color: var(--center-channel-text);
+                margin-top: 8px;
+                flex-grow: 2;
+            }
+        }
+    }
+
+    &-warning {
+        display: flex;
+        margin-top: 8px;
+        color: var(--error-text);
+
+        &-message {
+            font-family: 'Open Sans';
+            font-style: normal;
+            font-weight: 600;
+            font-size: 11px;
+            line-height: 16px;
+            margin-left: 3px;
+        }
+    }
+}
+
+.icon-check-circle:before {
+    margin-right: 8px;
+    margin-top: 8px;
+}
+
+.icon-download-outline:before {
+    margin-right: 8px;
+    margin-top: 8px;
+}
+
+

@@ -1,18 +1,43 @@
 // Copyright (c) 2015-present Mattermost, Inc. All Rights Reserved.
 // See LICENSE.txt for license information.
 
+<<<<<<< HEAD
 import React, {useEffect, useMemo, useRef, useState} from 'react';
+||||||| parent of 4c3b6f99c (wip)
+import React, {useMemo, useState} from 'react';
+=======
+import React, {useEffect, useMemo, useState} from 'react';
+>>>>>>> 4c3b6f99c (wip)
 import {useIntl} from 'react-intl';
 import styled from 'styled-components';
 
 import {CSSTransition} from 'react-transition-group';
 
 import {AccordionItemType} from 'components/common/accordion/accordion';
+<<<<<<< HEAD
 
+||||||| parent of 4c3b6f99c (wip)
+=======
+
+import {useDispatch, useSelector} from 'react-redux';
+
+import {fetchListing} from 'actions/marketplace';
+
+>>>>>>> 4c3b6f99c (wip)
 import {getTemplateDefaultIllustration} from '../utils';
 
 import {Board, Channel, Integration, Playbook, WorkTemplate} from '@mattermost/types/worktemplates';
 
+<<<<<<< HEAD
+||||||| parent of 4c3b6f99c (wip)
+import ModalBodyWithIllustration from './modal_body_with_illustration';
+=======
+import {MarketplacePlugin} from '@mattermost/types/marketplace';
+
+import {GlobalState} from '../../../types/store';
+
+import ModalBodyWithIllustration from './modal_body_with_illustration';
+>>>>>>> 4c3b6f99c (wip)
 import Accordion from './preview/accordion';
 import Chip from './preview/chip';
 import PreviewSection from './preview/section';
@@ -22,6 +47,7 @@ export interface PreviewProps {
     template: WorkTemplate;
 }
 
+<<<<<<< HEAD
 interface IllustrationAnimations {
     prior: {
         animateIn: boolean;
@@ -32,7 +58,16 @@ interface IllustrationAnimations {
         illustration: string;
     };
 }
+||||||| parent of 4c3b6f99c (wip)
+const Preview = ({template, ...props}: PreviewProps) => {
+    const {formatMessage} = useIntl();
+=======
+const Preview = ({template, ...props}: PreviewProps) => {
+    const {formatMessage} = useIntl();
+    const dispatch = useDispatch();
+>>>>>>> 4c3b6f99c (wip)
 
+<<<<<<< HEAD
 const ANIMATE_TIMEOUTS = {
     appear: 0,
     enter: 200,
@@ -80,12 +115,22 @@ const Preview = ({template, className}: PreviewProps) => {
             illustration,
         },
     });
+||||||| parent of 4c3b6f99c (wip)
+    const [currentIllustration, setCurrentIllustration] = useState<string>(getTemplateDefaultIllustration(template));
+=======
+    const [currentIllustration, setCurrentIllustration] = useState<string>(getTemplateDefaultIllustration(template));
+    const plugins: MarketplacePlugin[] = useSelector((state: GlobalState) => state.views.marketplace.plugins);
+    const [integrations, setIntegrations] = useState<Integration[]>();
+    useEffect(() => {
+        dispatch(fetchListing());
+    }, [dispatch]);
+>>>>>>> 4c3b6f99c (wip)
 
-    const [channels, boards, playbooks, integrations] = useMemo(() => {
+    const [channels, boards, playbooks, availableIntegrations] = useMemo(() => {
         const channels: Channel[] = [];
         const boards: Board[] = [];
         const playbooks: Playbook[] = [];
-        const integrations: Integration[] = [];
+        const availableIntegrations: Integration[] = [];
         template.content.forEach((c) => {
             if (c.channel) {
                 channels.push(c.channel);
@@ -97,11 +142,38 @@ const Preview = ({template, className}: PreviewProps) => {
                 playbooks.push(c.playbook);
             }
             if (c.integration) {
-                integrations.push(c.integration);
+                availableIntegrations.push(c.integration);
             }
         });
-        return [channels, boards, playbooks, integrations];
+        return [channels, boards, playbooks, availableIntegrations];
     }, [template.content]);
+
+    useEffect(() => {
+        const intg =
+            availableIntegrations?.
+                flatMap((integration) => {
+                    return plugins.reduce((acc: Integration[], curr) => {
+                        if (curr.manifest.id === integration.id) {
+                            acc.push({
+                                ...integration,
+                                name: curr.manifest.name,
+                                description: curr.manifest.description,
+                                icon: curr.icon_data,
+                                installed: curr.installed_version !== '',
+                            });
+
+                            return acc;
+                        }
+                        return acc;
+                    }, [] as Integration[]);
+                }).sort((first: Integration) => {
+                    return first.installed ? -1 : 1;
+                });
+        console.log(intg);
+        if (intg?.length) {
+            setIntegrations(intg);
+        }
+    }, [plugins]);
 
     // building accordion items
     const accordionItemsData: AccordionItemType[] = [];
@@ -113,6 +185,7 @@ const Preview = ({template, className}: PreviewProps) => {
             items: [(
                 <PreviewSection
                     key={'channels'}
+                    id={'channels'}
                     message={template.description.channel.message}
                     items={channels}
                     onUpdateIllustration={(illustration) => handleIllustrationUpdate(illustration)}
@@ -128,6 +201,7 @@ const Preview = ({template, className}: PreviewProps) => {
             items: [(
                 <PreviewSection
                     key={'boards'}
+                    id={'boards'}
                     message={template.description.board.message}
                     items={boards}
                     onUpdateIllustration={(illustration) => handleIllustrationUpdate(illustration)}
@@ -143,6 +217,7 @@ const Preview = ({template, className}: PreviewProps) => {
             items: [(
                 <PreviewSection
                     key={'playbooks'}
+                    id={'playbooks'}
                     message={template.description.playbook.message}
                     items={playbooks}
                     onUpdateIllustration={(illustration) => handleIllustrationUpdate(illustration)}
@@ -150,12 +225,19 @@ const Preview = ({template, className}: PreviewProps) => {
             )],
         });
     }
-    if (integrations.length > 0) {
+    if (integrations?.length) {
         accordionItemsData.push({
             id: 'integrations',
             title: 'Integrations',
             extraContent: <Chip>{integrations.length}</Chip>,
-            items: [<h1 key='integrations'>{'todo: integrations'}</h1>],
+            items: [(
+                <PreviewSection
+                    key={'integrations'}
+                    id={'integrations'}
+                    message={template.description.integration.message}
+                    items={integrations}
+                />
+            )],
         });
     }
 
@@ -197,9 +279,22 @@ const Preview = ({template, className}: PreviewProps) => {
     };
 
     return (
+<<<<<<< HEAD
         <div className={className}>
             <div className='content-side'>
                 <strong>{formatMessage({id: 'worktemplates.preview.included_in_template_title', defaultMessage: 'Included in template'})}</strong>
+||||||| parent of 4c3b6f99c (wip)
+        <div className={props.className}>
+            <ModalBodyWithIllustration illustration={currentIllustration || ''}>
+                <strong>{formatMessage({id: 'worktemplates.preview.included_in_template_title', defaultMessage: 'Included in template'})}</strong>
+=======
+        <div className={props.className}>
+            <ModalBodyWithIllustration illustration={currentIllustration || ''}>
+                <strong>{formatMessage({
+                    id: 'worktemplates.preview.included_in_template_title',
+                    defaultMessage: 'Included in template',
+                })}</strong>
+>>>>>>> 4c3b6f99c (wip)
                 <Accordion
                     accordionItemsData={accordionItemsData}
                     openFirstElement={true}
